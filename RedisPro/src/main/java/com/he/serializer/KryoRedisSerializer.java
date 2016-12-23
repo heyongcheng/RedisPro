@@ -3,6 +3,8 @@ package com.he.serializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import javax.annotation.Resource;
+
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
@@ -13,8 +15,18 @@ import com.he.serializer.customerKryoPool.KryoPool;
 
 public class KryoRedisSerializer implements RedisSerializer<Object> {
 	
-	KryoPool kryoPool = new KryoPool();
+	@Resource
+	KryoPool kryoPool;
 	
+	
+	public KryoPool getKryoPool() {
+		return kryoPool;
+	}
+
+	public void setKryoPool(KryoPool kryoPool) {
+		this.kryoPool = kryoPool;
+	}
+
 	/**
 	 * 序列化
 	 */
@@ -23,7 +35,7 @@ public class KryoRedisSerializer implements RedisSerializer<Object> {
 			return null;
 		
 		byte[] array = null;
-		Kryo kryo = kryoPool.get();
+		Kryo kryo = kryoPool.borrow();
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			
@@ -41,7 +53,7 @@ public class KryoRedisSerializer implements RedisSerializer<Object> {
 			e.printStackTrace();
 		}finally{
 			if(kryo != null){
-				kryoPool.returnKryo(kryo);
+				kryoPool.release(kryo);
 			}
 		}
 		return array;
@@ -55,7 +67,7 @@ public class KryoRedisSerializer implements RedisSerializer<Object> {
 			return null;
 		
 		Object object = null;
-		Kryo kryo = kryoPool.get();
+		Kryo kryo = kryoPool.borrow();
 		try {
 			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 			
@@ -69,12 +81,11 @@ public class KryoRedisSerializer implements RedisSerializer<Object> {
 			e.printStackTrace();
 		}finally{
 			if(kryo != null){
-				kryoPool.returnKryo(kryo);
+				kryoPool.release(kryo);
 			}
 		}
 		
 		return object;
 	}
-
 
 }

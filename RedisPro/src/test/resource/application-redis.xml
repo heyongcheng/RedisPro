@@ -32,10 +32,23 @@
 		</property>
 		<property name="valueSerializer">
 			<!-- <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/> -->
-			<bean class="com.he.serializer.KryoRedisSerializer"/>
+			<bean class="com.he.serializer.KryoRedisSerializer">
+				<property name="kryoPool" ref="kryoPool"/>
+			</bean>
 		</property>
 	</bean>
 	
 	<!-- kryo pool -->
-	
+	<bean id="kryoPool" class="com.he.serializer.customerKryoPool.KryoPool">
+		<property name="objectPool" ref="objectPool"/>
+	</bean>
+	<bean id="objectPool" class="org.apache.commons.pool2.impl.GenericObjectPool">
+		<constructor-arg index="0" ref="kryoPooledObjectFactory"/>
+		<constructor-arg index="1" ref="objectPoolConfig"/>
+	</bean>
+	<bean id="kryoPooledObjectFactory" class="com.he.serializer.customerKryoPool.KryoPooledObjectFactoryFactory"></bean>
+	<bean id="objectPoolConfig" class="org.apache.commons.pool2.impl.GenericObjectPoolConfig">
+		<property name="maxTotal" value="${kryo.maxTotal}"></property>
+		<property name="maxIdle" value="${kryo.maxIdle}"></property>
+	</bean>
 </beans>

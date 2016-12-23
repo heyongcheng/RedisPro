@@ -1,35 +1,35 @@
 package com.he.serializer.customerKryoPool;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.pool2.ObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.esotericsoftware.kryo.Kryo;
 
 public class KryoPool {
 	
-	KryoPooledObjectFactoryFactory kryoPooledObjectFactoryFactory = new KryoPooledObjectFactoryFactory();
+	@Resource
+	ObjectPool<Kryo> objectPool;
 	
-	ObjectPool<Kryo> pool = null;
-	
-	{
-		GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-		poolConfig.setMaxTotal(100);
-		poolConfig.setMaxIdle(10);
-		pool = new GenericObjectPool<Kryo>(kryoPooledObjectFactoryFactory,poolConfig);
+	public ObjectPool<Kryo> getObjectPool() {
+		return objectPool;
 	}
-	
-	public Kryo get(){
+
+	public void setObjectPool(ObjectPool<Kryo> objectPool) {
+		this.objectPool = objectPool;
+	}
+
+	public Kryo borrow(){
 		try {
-			return pool.borrowObject();
+			return objectPool.borrowObject();
 		} catch (Exception e) {
 			throw new RuntimeException("获取kryo失败",e);
 		}
 	}
 	
-	public void returnKryo(Kryo kryo){
+	public void release(Kryo kryo){
 		try {
-			pool.returnObject(kryo);
+			objectPool.returnObject(kryo);
 		} catch (Exception e) {
 			throw new RuntimeException("returnKryo失败",e);
 		}
