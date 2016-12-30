@@ -19,5 +19,5 @@
 		<context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
 	</context:component-scan>
 	<!-- 引入redis --> 
-	<import resource="file:src/test/resource/application-redis.xml"/>
+	<import resource="file:src/test/resource/application-redisSentinel.xml"/>
 </beans>

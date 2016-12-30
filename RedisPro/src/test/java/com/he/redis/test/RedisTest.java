@@ -4,8 +4,6 @@ import javax.annotation.Resource;
 
 import org.junit.Test;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
@@ -23,7 +21,7 @@ public class RedisTest extends BaseJunit4Test{
 	public void testInit(){
 		System.out.println("init...");
 	}
-	
+
 	@Test
 	public void testRedis(){
 		try {
@@ -55,16 +53,17 @@ public class RedisTest extends BaseJunit4Test{
 				ValueOperations<String, User> opsForValue = (ValueOperations<String, User>) operations.opsForValue();
 				User user = null;
 				do{
-					operations.watch((K) "明月");
-					user = opsForValue.get("明月");
+					String key = "test2";
+					operations.watch((K) key);
+					user = opsForValue.get(key);
 					if(user == null){
 						user = new User();
-						user.setName("明月");
+						user.setName(key);
 						user.setAge(12);
 					}
 					user.setAge(user.getAge() + 10);
 					operations.multi();
-					opsForValue.set("明月", user);
+					opsForValue.set(key, user);
 				}while(operations.exec() == null);
 				
 				return user;
@@ -76,4 +75,13 @@ public class RedisTest extends BaseJunit4Test{
 		System.out.println(user);
 	}
 	
+	
+	public static void main(String[] args) {
+		System.out.println(null instanceof User);
+		
+		String[] split = "1|2|3".split("\\|");
+		for(int i=0;i<split.length;i++){
+			System.out.println(split);
+		}
+	}
 }
